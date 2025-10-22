@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixaro Brand AI - Your Personal Marketing Strategist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+            visibility: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .sidebar-header-content {
+            flex: 1;
+        }
+
+        .close-sidebar-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .close-sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .new-chat-btn {
+            margin: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-history-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-history-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .chat-history-item:hover .delete-chat-btn {
+            opacity: 1;
+        }
+
+        .chat-history-item.active {
+            background: #e0e7ff;
+            border-color: #667eea;
+        }
+
+        .chat-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-history-item h4 {
+            font-size: 14px;
+            color: #1e293b;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-history-item p {
+            font-size: 12px;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .delete-chat-btn {
+            background: #fee2e2;
+            border: none;
+            color: #dc2626;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            opacity: 0;
+            flex-shrink: 0;
+        }
+
+        .delete-chat-btn:hover {
+            background: #fecaca;
+            transform: scale(1.1);
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar:not(.hidden) ~ .chat-container {
+            margin-left: 280px;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar:not(.hidden) ~ .chat-container .menu-btn {
+            opacity: 0.5;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .brand-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .brand-info h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .brand-info p {
+            font-size: 13px;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Connection Panel */
+        .connection-panel {
+            background: #f8fafc;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .connection-panel.active {
+            display: block;
+        }
+
+        .connection-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .connection-form input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .connection-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .connection-form button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .connection-form button:hover {
+            transform: translateY(-2px);
+        }
+
+        .connection-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #e2e8f0;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-content a {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .message.user .message-content a {
+            color: white;
+        }
+
+        /* Action Buttons in Messages */
+        .message-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .action-btn.secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtext {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 14px 18px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Email Modal */
+        .email-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .email-modal.active {
+            display: flex;
+        }
+
+        .email-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .email-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .email-modal-header h3 {
+            font-size: 20px;
+            color: #1e293b;
+        }
+
+        .email-modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .email-modal-close:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .email-modal-body p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .email-input-group {
+            margin-bottom: 20px;
+        }
+
+        .email-input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .email-input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .email-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .email-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .email-modal-actions button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .email-modal-actions .cancel-btn {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .email-modal-actions .cancel-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .email-modal-actions .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .email-modal-actions .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .email-modal-actions .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Input Container */
+        .input-container {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .quick-actions::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .quick-actions::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .quick-action {
+            padding: 8px 16px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 24px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            max-height: 120px;
+            transition: all 0.3s;
+        }
+
+        #messageInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #sendButton {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #sendButton:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-screen h2 {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .welcome-screen p {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .capability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .capability-card {
+            padding: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+
+        .capability-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+            z-index: 10;
+        }
+
+        .capability-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .capability-card h3 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .capability-card p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* Scrollbar Styling */
+        .messages-container::-webkit-scrollbar,
+        .chat-history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track,
+        .chat-history::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb,
+        .chat-history::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover,
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .chat-header {
+                padding: 15px 20px;
+            }
+
+            .brand-info h1 {
+                font-size: 16px;
+            }
+
+            .messages-container {
+                padding: 20px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .capability-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">AI is thinking...</div>
+            <div class="loading-subtext">Generating your personalized response</div>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div class="email-modal" id="emailModal">
+        <div class="email-modal-content">
+            <div class="email-modal-header">
+                <h3>📧 Get Your Full Report</h3>
+                <button class="email-modal-close" onclick="closeEmailModal()">×</button>
+            </div>
+            <div class="email-modal-body">
+                <p>We'll send you a comprehensive Marketing Genome Report (the same professional 7-section PDF from the main page) with all the insights we've discussed.</p>
+                <div class="email-input-group">
+                    <label for="emailInput">Your Email Address</label>
+                    <input type="email" id="emailInput" placeholder="your@email.com" required>
+                </div>
+            </div>
+            <div class="email-modal-actions">
+                <button class="cancel-btn" onclick="closeEmailModal()">Cancel</button>
+                <button class="submit-btn" onclick="submitEmailReport()" id="emailSubmitBtn">Send Report</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-header-content">
+                    <h2>Genome AI</h2>
+                    <p>Your Marketing Strategist</p>
+                </div>
+                <button class="close-sidebar-btn" onclick="toggleSidebar()">×</button>
+            </div>
+            <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+            <div class="chat-history" id="chatHistory">
+                <!-- Chat history items will be added here -->
+            </div>
+        </div>
+
+        <!-- Main Chat Container -->
+        <div class="chat-container">
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="brand-icon">🧬</div>
+                    <div class="brand-info">
+                        <h1>Genome AI</h1>
+                        <p id="brandHandle">Connect your brand to get started</p>
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>AI Ready</span>
+                </div>
+            </div>
+
+            <!-- Connection Panel -->
+            <div class="connection-panel active" id="connectionPanel">
+                <form class="connection-form" id="connectionForm">
+                    <input
+                        type="text"
+                        id="brandInput"
+                        placeholder="Enter your Instagram handle, website, or brand name..."
+                        required
+                    >
+                    <button type="submit" id="connectBtn">Connect Brand</button>
+                </form>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">🚀</div>
+                    <h2>Your Personal Brand Strategist</h2>
+                    <p>Connect your brand and unlock AI-powered marketing insights, content generation, and strategic recommendations.</p>
+
+                    <div class="capability-grid">
+                        <div class="capability-card" onclick="sendQuickMessage('Generate 5 Instagram posts for this week')">
+                            <div class="capability-icon">✍️</div>
+                            <h3>Content Creation</h3>
+                            <p>Generate posts, captions, and campaigns</p>
+                        </div>
+                        <div class="capability-card" onclick="sendQuickMessage('Show me my audience personas')">
+                            <div class="capability-icon">👥</div>
+                            <h3>Audience Insights</h3>
+                            <p>Understand your micro-personas</p>
+                        </div>
+                        <div class="capability-card" onclick="sendQuickMessage('Who are my competitors? Give me the list with links')">
+                            <div class="capability-icon">🎯</div>
+                            <h3>Competitor Analysis</h3>
+                            <p>Identify gaps and opportunities</p>
+                        </div>
+                        <div class="capability-card" onclick="sendQuickMessage('Create a weekly content strategy')">
+                            <div class="capability-icon">📊</div>
+                            <h3>Strategic Planning</h3>
+                            <p>Get actionable growth roadmaps</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">🤖</div>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Container -->
+            <div class="input-container">
+                <div class="quick-actions" id="quickActions">
+                    <div class="quick-action" onclick="sendQuickMessage('What should I post today?')">What should I post today?</div>
+                    <div class="quick-action" onclick="sendQuickMessage('Who are my competitors with links?')">Competitors with links</div>
+                    <div class="quick-action" onclick="sendQuickMessage('Generate Instagram captions')">Generate captions</div>
+                    <div class="quick-action" onclick="sendQuickMessage('Show audience insights')">Audience insights</div>
+                    <div class="quick-action" onclick="sendQuickMessage('Create weekly strategy')">Weekly strategy</div>
+                    <div class="quick-action" onclick="openEmailModal()">📧 Email full report</div>
+                </div>
+
+                <div class="input-wrapper">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Ask anything about your brand..."
+                        rows="1"
+                        disabled
+                    ></textarea>
+                    <button id="sendButton" disabled>➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let sessionId = null;
+        let brandHandle = null;
+        let isConnected = false;
+        let conversationHistory = [];
+        let chatSessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const chatHistory = document.getElementById('chatHistory');
+        const connectionPanel = document.getElementById('connectionPanel');
+        const connectionForm = document.getElementById('connectionForm');
+        const brandInput = document.getElementById('brandInput');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        let typingIndicator = document.getElementById('typingIndicator');
+        const brandHandleDisplay = document.getElementById('brandHandle');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const emailModal = document.getElementById('emailModal');
+        const emailInput = document.getElementById('emailInput');
+
+        // Initialize sidebar as hidden by default
+        sidebar.classList.add('hidden');
+
+        // Initialize
+        renderChatHistory();
+        loadLastSession();
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('hidden');
+        }
+
+        // Go to Main Page
+        function goToMainPage() {
+            window.location.href = '/';
+        }
+
+        // Start New Chat
+        function startNewChat() {
+            sessionId = null;
+            brandHandle = null;
+            isConnected = false;
+            conversationHistory = [];
+            localStorage.removeItem('lastSessionId');
+
+            messagesContainer.innerHTML = '';
+
+            // Re-create welcome screen
+            const newWelcomeScreen = welcomeScreen.cloneNode(true);
+            newWelcomeScreen.style.display = 'flex';
+            messagesContainer.appendChild(newWelcomeScreen);
+
+            // Re-create typing indicator
+            const newTypingIndicator = document.createElement('div');
+            newTypingIndicator.className = 'typing-indicator';
+            newTypingIndicator.id = 'typingIndicator';
+            newTypingIndicator.innerHTML = `
+                <div class="message-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">🤖</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            messagesContainer.appendChild(newTypingIndicator);
+
+            // Update global reference
+            typingIndicator = newTypingIndicator;
+
+            connectionPanel.classList.add('active');
+            brandHandleDisplay.textContent = 'Connect your brand to get started';
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            brandInput.value = '';
+            brandInput.focus();
+            renderChatHistory();
+        }
+
+        // Render Chat History
+        function renderChatHistory() {
+            chatHistory.innerHTML = '';
+            chatSessions.forEach((chat, index) => {
+                const item = document.createElement('div');
+                item.className = 'chat-history-item';
+                if (chat.sessionId === sessionId) {
+                    item.classList.add('active');
+                }
+
+                const content = document.createElement('div');
+                content.className = 'chat-item-content';
+                content.innerHTML = `
+                    <h4>${chat.brand}</h4>
+                    <p>${chat.lastMessage || 'No messages yet'}</p>
+                `;
+                content.onclick = () => loadChatSession(index);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-chat-btn';
+                deleteBtn.innerHTML = '🗑️';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteChat(index);
+                };
+
+                item.appendChild(content);
+                item.appendChild(deleteBtn);
+                chatHistory.appendChild(item);
+            });
+        }
+
+        // Delete Chat
+        function deleteChat(index) {
+            const chat = chatSessions[index];
+            if (!chat) return;
+
+            if (confirm(`Delete chat with ${chat.brand}?`)) {
+                // If deleting the current session, start a new chat
+                if (chat.sessionId === sessionId) {
+                    startNewChat();
+                }
+
+                // Remove from array
+                chatSessions.splice(index, 1);
+
+                // Update localStorage
+                localStorage.setItem('chatSessions', JSON.stringify(chatSessions));
+
+                // Re-render
+                renderChatHistory();
+            }
+        }
+
+        // Save Chat Session
+        function saveChatSession() {
+            if (!sessionId || !brandHandle) return;
+
+            const existingIndex = chatSessions.findIndex(s => s.sessionId === sessionId);
+            const lastMsg = conversationHistory[conversationHistory.length - 1];
+            const sessionData = {
+                sessionId,
+                brand: brandHandle,
+                lastMessage: lastMsg ? lastMsg.content.substring(0, 50) : 'New chat',
+                timestamp: new Date().toISOString(),
+                messages: conversationHistory
+            };
+
+            if (existingIndex >= 0) {
+                chatSessions[existingIndex] = sessionData;
+            } else {
+                chatSessions.unshift(sessionData);
+            }
+
+            localStorage.setItem('chatSessions', JSON.stringify(chatSessions.slice(0, 20)));
+            localStorage.setItem('lastSessionId', sessionId);
+            renderChatHistory();
+        }
+
+        // Load Chat Session
+        function loadChatSession(index) {
+            const chat = chatSessions[index];
+            if (!chat) return;
+
+            sessionId = chat.sessionId;
+            brandHandle = chat.brand;
+            isConnected = true;
+            conversationHistory = chat.messages || [];
+
+            // Update UI
+            brandHandleDisplay.textContent = brandHandle;
+            connectionPanel.classList.remove('active');
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+
+            // Clear messages container completely
+            messagesContainer.innerHTML = '';
+
+            // Remove welcome screen if it exists
+            const existingWelcome = document.getElementById('welcomeScreen');
+            if (existingWelcome && existingWelcome.parentNode) {
+                existingWelcome.parentNode.removeChild(existingWelcome);
+            }
+
+            // Re-add typing indicator first
+            const newTypingIndicator = document.createElement('div');
+            newTypingIndicator.className = 'typing-indicator';
+            newTypingIndicator.id = 'typingIndicator';
+            newTypingIndicator.innerHTML = `
+                <div class="message-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">🤖</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            messagesContainer.appendChild(newTypingIndicator);
+
+            // Update the global reference
+            typingIndicator = newTypingIndicator;
+
+            // Add all messages from history
+            conversationHistory.forEach(msg => {
+                addMessage(msg.role, msg.content, null, false, false, msg.imageUrl || null);
+            });
+
+            // Update active state in sidebar
+            renderChatHistory();
+
+            // Scroll to bottom
+            scrollToBottom();
+
+            // Focus input
+            messageInput.focus();
+        }
+
+        // Load Last Session on Page Load
+        function loadLastSession() {
+            const lastSessionId = localStorage.getItem('lastSessionId');
+            if (lastSessionId && chatSessions.length > 0) {
+                const sessionIndex = chatSessions.findIndex(s => s.sessionId === lastSessionId);
+                if (sessionIndex >= 0) {
+                    loadChatSession(sessionIndex);
+                }
+            }
+        }
+
+        // Connect Brand
+        connectionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const brand = brandInput.value.trim();
+            if (!brand) return;
+
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.textContent = 'Connecting...';
+            connectBtn.disabled = true;
+            loadingOverlay.classList.add('active');
+
+            try {
+                const response = await fetch('/api/chat/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ brand_handle: brand })
+                });
+
+                const data = await response.json();
+
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                    brandHandle = brand;
+                    isConnected = true;
+
+                    brandHandleDisplay.textContent = brand;
+                    connectionPanel.classList.remove('active');
+
+                    // Remove welcome screen from DOM completely
+                    if (welcomeScreen && welcomeScreen.parentNode) {
+                        welcomeScreen.parentNode.removeChild(welcomeScreen);
+                    }
+
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+
+                    addMessage('assistant', data.welcome_message || `Hi! I'm your personal AI strategist for ${brand}. Ask me anything!`);
+                    saveChatSession();
+                    messageInput.focus();
+                } else {
+                    alert('Failed to connect. Please try again.');
+                }
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Connection error. Please try again.');
+            } finally {
+                loadingOverlay.classList.remove('active');
+                connectBtn.textContent = 'Connect Brand';
+                connectBtn.disabled = false;
+            }
+        });
+
+        // Send Message
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || !isConnected) return;
+
+            addMessage('user', message);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
+            // Disable input while processing
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            // Show loading
+            const loadingText = document.querySelector('.loading-text');
+            const loadingSubtext = document.querySelector('.loading-subtext');
+
+            // Check if user is asking for image generation
+            if (message.toLowerCase().includes('image') || message.toLowerCase().includes('photo') || message.toLowerCase().includes('visual')) {
+                loadingText.textContent = 'Generating image...';
+                loadingSubtext.textContent = 'Creating professional visual content with AI';
+            } else {
+                loadingText.textContent = 'AI is thinking...';
+                loadingSubtext.textContent = 'Generating your personalized response';
+            }
+
+            loadingOverlay.classList.add('active');
+            typingIndicator.classList.add('active');
+            scrollToBottom();
+
+            try {
+                const response = await fetch('/api/chat/message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.response) {
+                    addMessage('assistant', data.response, data.action_type, data.needs_report, true, data.image_url);
+                    saveChatSession();
+                } else {
+                    addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+                }
+
+            } catch (error) {
+                console.error('Message error:', error);
+                addMessage('assistant', 'Connection error. Please try again.');
+            } finally {
+                loadingOverlay.classList.remove('active');
+                typingIndicator.classList.remove('active');
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // Add Message
+        function addMessage(role, content, actionType = null, needsReport = false, saveToHistory = true, imageUrl = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = role === 'assistant' ? '🤖' : '👤';
+
+            const contentWrapper = document.createElement('div');
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = formatMessage(content);
+
+            contentWrapper.appendChild(messageContent);
+
+            // Add generated image if present
+            if (imageUrl && role === 'assistant') {
+                const imageWrapper = document.createElement('div');
+                imageWrapper.style.marginTop = '12px';
+
+                const imageContainer = document.createElement('div');
+                imageContainer.style.borderRadius = '12px';
+                imageContainer.style.overflow = 'hidden';
+                imageContainer.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                imageContainer.style.position = 'relative';
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = 'Generated image';
+                img.style.width = '100%';
+                img.style.maxWidth = '500px';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                img.style.cursor = 'pointer';
+                img.onclick = () => window.open(imageUrl, '_blank');
+
+                imageContainer.appendChild(img);
+
+                // Add download button
+                const downloadBtn = document.createElement('button');
+                downloadBtn.innerHTML = '⬇️ Download Image';
+                downloadBtn.className = 'action-btn';
+                downloadBtn.style.marginTop = '10px';
+                downloadBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    // Open image in new tab - browser will handle download
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.target = '_blank';
+                    link.download = `genome-ai-${brandHandle || 'generated'}-${Date.now()}.png`;
+                    link.rel = 'noopener noreferrer';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Show success message
+                    downloadBtn.innerHTML = '✓ Opening...';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = '⬇️ Download Image';
+                    }, 2000);
+                };
+
+                imageWrapper.appendChild(imageContainer);
+                imageWrapper.appendChild(downloadBtn);
+                messageContent.appendChild(imageWrapper);
+            }
+
+            // Add action buttons
+            if (role === 'assistant') {
+                const actions = document.createElement('div');
+                actions.className = 'message-actions';
+                let hasActions = false;
+
+                if (needsReport || content.toLowerCase().includes('report') || content.toLowerCase().includes('competitor')) {
+                    const reportBtn = document.createElement('button');
+                    reportBtn.className = 'action-btn';
+                    reportBtn.textContent = '📧 Email Full Report';
+                    reportBtn.onclick = () => openEmailModal();
+                    actions.appendChild(reportBtn);
+                    hasActions = true;
+                }
+
+                if (actionType === 'generate_content' || content.includes('Post ') || content.includes('Caption')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'action-btn secondary';
+                    copyBtn.textContent = '📋 Copy Content';
+                    copyBtn.onclick = () => copyToClipboard(content);
+                    actions.appendChild(copyBtn);
+                    hasActions = true;
+                }
+
+                if (hasActions) {
+                    contentWrapper.appendChild(actions);
+                }
+            }
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentWrapper);
+            messagesContainer.insertBefore(messageDiv, typingIndicator);
+
+            if (saveToHistory) {
+                const historyEntry = { role, content, timestamp: new Date().toISOString() };
+                if (imageUrl) {
+                    historyEntry.imageUrl = imageUrl;
+                }
+                conversationHistory.push(historyEntry);
+            }
+
+            scrollToBottom();
+        }
+
+        // Format Message
+        function formatMessage(text) {
+            text = text.replace(/\n/g, '<br>');
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/^- (.+)$/gm, '• $1');
+            text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            text = text.replace(/@([a-zA-Z0-9._]+)/g, '<a href="https://instagram.com/$1" target="_blank">@$1</a>');
+            return text;
+        }
+
+        // Quick Message
+        function sendQuickMessage(message) {
+            if (!isConnected) {
+                alert('Please connect your brand first!');
+                return;
+            }
+            messageInput.value = message;
+            sendMessage();
+        }
+
+        // Email Modal Functions
+        function openEmailModal() {
+            if (!isConnected) {
+                alert('Please connect your brand first!');
+                return;
+            }
+            emailModal.classList.add('active');
+            emailInput.focus();
+        }
+
+        function closeEmailModal() {
+            emailModal.classList.remove('active');
+            emailInput.value = '';
+        }
+
+        async function submitEmailReport() {
+            const email = emailInput.value.trim();
+            if (!email) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            const submitBtn = document.getElementById('emailSubmitBtn');
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/chat/generate-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        email: email
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeEmailModal();
+                    addMessage('assistant', `Perfect! I'm generating your complete Marketing Genome Report (the same professional 7-section PDF from the main page) and sending it to ${email}. \n\nThis will take 2-3 minutes. The report includes:\n- Brand DNA Analysis\n- Competitive Intelligence with Links\n- Audience Psychographics\n- Content Performance Forecasting\n- 90-Day Growth Roadmap\n- And more!`);
+                } else {
+                    alert('Sorry, there was an error generating the report. Please try again.');
+                }
+            } catch (error) {
+                console.error('Report error:', error);
+                alert('Connection error. Please try again.');
+            } finally {
+                submitBtn.textContent = 'Send Report';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard(text) {
+            const cleanText = text.replace(/<br>/g, '\n').replace(/<[^>]*>/g, '');
+            navigator.clipboard.writeText(cleanText).then(() => {
+                alert('Content copied to clipboard!');
+            });
+        }
+
+        // Scroll to Bottom
+        function scrollToBottom() {
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        // Event Listeners
+        sendButton.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Close email modal on click outside
+        emailModal.addEventListener('click', (e) => {
+            if (e.target === emailModal) {
+                closeEmailModal();
+            }
+        });
+
+        // Close email modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && emailModal.classList.contains('active')) {
+                closeEmailModal();
+            }
+        });
+
+        brandInput.focus();
+    </script>
+</body>
+</html>

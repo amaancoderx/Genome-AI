@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixaro Market Genome - AI Marketing Strategy Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .features {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .features h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .feature-item::before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
+        .input-hint {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .success-message.active {
+            display: block;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .error-message.active {
+            display: block;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .examples {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .examples h4 {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .example-item {
+            font-size: 13px;
+            color: #666;
+            margin: 5px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .example-item::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">🧬</div>
+                <h1>Pixaro Market Genome</h1>
+                <p class="subtitle">AI-Powered Marketing Strategy Builder</p>
+            </div>
+
+            <div class="features">
+                <h3>What You'll Get</h3>
+                <div class="feature-list">
+                    <div class="feature-item">Brand DNA Analysis</div>
+                    <div class="feature-item">Competitor Insights</div>
+                    <div class="feature-item">90-Day Roadmap</div>
+                    <div class="feature-item">Content Strategy</div>
+                    <div class="feature-item">Growth Tactics</div>
+                    <div class="feature-item">PDF Report</div>
+                </div>
+            </div>
+
+            <form id="genomeForm">
+                <div class="form-group">
+                    <label for="brandInput">Brand Name, Website, or Social Handle</label>
+                    <input
+                        type="text"
+                        id="brandInput"
+                        name="brand_input"
+                        placeholder="e.g., Nike, nike.com, @nike, or https://twitter.com/nike"
+                        required
+                    >
+                    <div class="input-hint">Enter any identifier - we'll figure out the rest</div>
+                </div>
+
+                <div class="examples">
+                    <h4>Examples:</h4>
+                    <div class="example-item">Brand name: "Coca Cola"</div>
+                    <div class="example-item">Website: "apple.com"</div>
+                    <div class="example-item">Instagram: "@natgeo"</div>
+                    <div class="example-item">Twitter: "https://twitter.com/tesla"</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputType">Input Type (Optional)</label>
+                    <select id="inputType" name="input_type">
+                        <option value="auto">Auto-detect</option>
+                        <option value="brand_name">Brand Name</option>
+                        <option value="website">Website URL</option>
+                        <option value="instagram">Instagram Handle</option>
+                        <option value="twitter">Twitter Handle</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Your Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        required
+                    >
+                    <div class="input-hint">We'll send your Marketing Genome Report here</div>
+                </div>
+
+                <div class="info-box">
+                    <strong>⏱️ Processing time:</strong> 2-5 minutes depending on data availability
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Generate My Marketing Genome
+                </button>
+            </form>
+
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p class="loader-text">Analyzing your brand's DNA...</p>
+                <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                    This may take a few minutes. We're scraping data, analyzing competitors, and building your strategy.
+                </p>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <h3 style="margin-bottom: 10px;">✅ Analysis Started!</h3>
+                <p>Your Marketing Genome Report is being generated. You'll receive it via email within 2-5 minutes.</p>
+                <p style="margin-top: 15px; font-size: 14px;">Check your inbox (and spam folder) for the complete PDF report.</p>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <h3 style="margin-bottom: 10px;">❌ Oops! Something went wrong</h3>
+                <p id="errorText"></p>
+                <p style="margin-top: 15px; font-size: 14px;">Please try again or contact support if the issue persists.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('genomeForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loader = document.getElementById('loader');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const loaderText = document.querySelector('.loader-text');
+
+        const loadingMessages = [
+            "Analyzing your brand's DNA...",
+            "Scraping live data...",
+            "Studying competitor strategies...",
+            "Building your marketing genome...",
+            "Creating growth roadmap...",
+            "Generating content strategy..."
+        ];
+
+        let messageIndex = 0;
+        let messageInterval;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide previous messages
+            successMessage.classList.remove('active');
+            errorMessage.classList.remove('active');
+
+            // Show loader
+            loader.classList.add('active');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            // Rotate loading messages
+            messageIndex = 0;
+            messageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % loadingMessages.length;
+                loaderText.textContent = loadingMessages[messageIndex];
+            }, 3000);
+
+            // Get form data
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Stop message rotation
+                clearInterval(messageInterval);
+
+                if (response.ok) {
+                    loader.classList.remove('active');
+                    successMessage.classList.add('active');
+                    form.reset();
+                } else {
+                    throw new Error(data.detail || 'Failed to start analysis');
+                }
+            } catch (error) {
+                clearInterval(messageInterval);
+                loader.classList.remove('active');
+                errorMessage.classList.add('active');
+                errorText.textContent = error.message;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Generate My Marketing Genome';
+            }
+        });
+
+        // Auto-hide messages after 10 seconds
+        const hideAfterDelay = (element, delay = 10000) => {
+            setTimeout(() => {
+                element.classList.remove('active');
+            }, delay);
+        };
+
+        // Observer to trigger auto-hide when messages appear
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.classList.contains('active')) {
+                    hideAfterDelay(mutation.target);
+                }
+            });
+        });
+
+        observer.observe(successMessage, { attributes: true, attributeFilter: ['class'] });
+        observer.observe(errorMessage, { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>
