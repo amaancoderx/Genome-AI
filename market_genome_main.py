@@ -77,16 +77,16 @@ async def startup_event():
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    """Serve the Market Genome UI"""
-    html_file = os.path.join(os.path.dirname(__file__), "market_genome_page.html")
+    """Serve the Chat Interface (Default Homepage)"""
+    html_file = os.path.join(os.path.dirname(__file__), "chat_interface.html")
     with open(html_file, "r", encoding="utf-8") as f:
         return f.read()
 
 
-@app.get("/chat", response_class=HTMLResponse)
-async def chat_interface():
-    """Serve the Chat Interface"""
-    html_file = os.path.join(os.path.dirname(__file__), "chat_interface.html")
+@app.get("/genome", response_class=HTMLResponse)
+async def genome_page():
+    """Serve the Market Genome Analysis Page"""
+    html_file = os.path.join(os.path.dirname(__file__), "market_genome_page.html")
     with open(html_file, "r", encoding="utf-8") as f:
         return f.read()
 
