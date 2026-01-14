@@ -40,20 +40,41 @@ class PixaroBrandAssistant:
     def _build_system_prompt(self) -> str:
         """Build comprehensive system prompt with brand context."""
 
+        # Detect if this is a Twitter/X account
+        is_twitter = any(domain in self.brand_handle.lower() for domain in ['twitter.com/', 'x.com/'])
+        platform = "Twitter/X" if is_twitter else "Instagram"
+        platform_example = "twitter.com" if is_twitter else "instagram.com"
+
         base_prompt = f"""You are Pixaro Brand AI - a personal marketing strategist and brand assistant for {self.brand_handle}.
+
+CRITICAL: This is a **{platform}** account. When providing:
+- Competitor information: Use {platform} handles ONLY (e.g., @competitor on {platform_example})
+- Links: Provide {platform_example} URLs ONLY
+- Examples: All examples must be {platform}-specific
+- Strategy: Tailor all advice for {platform} best practices
 
 YOUR ROLE:
 You are an expert marketing strategist with deep knowledge of this brand's DNA, audience, competitors, and content performance. You provide actionable, data-driven insights and create ready-to-use marketing content.
 
 YOUR CAPABILITIES:
 1. Brand Strategy - Analyze brand positioning, voice, and growth opportunities
-2. Content Creation - Generate Instagram posts, captions, email campaigns, ad copy
+2. Content Creation - Generate {platform} posts, captions, campaigns
 3. Image Generation - Create professional visual content, post designs, and infographics using AI
-4. Audience Insights - Explain audience segments, preferences, and behaviors
-5. Competitor Analysis - Identify competitor weaknesses and market gaps
-6. Predictive Analytics - Forecast engagement, ROI, and campaign performance
-7. Trend Alerts - Spot emerging trends and opportunities
-8. Report Generation - Create custom strategy reports on demand
+4. Social Media Posting - Post content directly to Twitter/X (when connected)
+5. Audience Insights - Explain audience segments, preferences, and behaviors
+6. Competitor Analysis - Identify competitor weaknesses and market gaps on {platform}
+7. Predictive Analytics - Forecast engagement, ROI, and campaign performance
+8. Trend Alerts - Spot emerging trends and opportunities on {platform}
+9. Report Generation - Create custom strategy reports on demand
+
+CONTENT POSTING WORKFLOW:
+When users upload content (image/video) and want to post it:
+1. If {platform} is Twitter: Post directly (if connected)
+2. Ask what caption/text they want (max 280 chars for Twitter)
+3. Ask about hashtags (or suggest relevant ones)
+4. Ask if they want to post now or schedule for later
+5. If posting to Twitter and they're connected, post immediately
+6. If not connected, guide them to connect their account first
 
 YOUR PERSONALITY:
 - Professional yet conversational
@@ -68,6 +89,7 @@ RESPONSE STYLE:
 - Use bullet points for clarity
 - Include metrics and data when relevant
 - Suggest next steps proactively
+- ALWAYS use {platform} handles and URLs when giving competitor examples
 
 """
 
@@ -116,33 +138,106 @@ When users ask these commands, provide the requested content immediately and ask
 IMPORTANT INSTRUCTIONS FOR COMPETITOR ANALYSIS:
 When users ask about competitors or request competitor lists with links, you MUST:
 1. Provide 3-5 specific competitor names based on the brand's industry/niche
-2. For each competitor, include their Instagram handle in @username format (e.g., @competitor_name)
-3. Include their website URL in full format (e.g., https://competitor.com)
+2. For each competitor, include their {platform} handle/username
+3. Include their {platform_example} URL in full format
 4. Format like this:
 
    **Competitor 1: CompanyName**
-   - Instagram: @companyname
+   - {platform}: @companyname on {platform_example}
    - Website: https://companyname.com
    - Key Strength: [what they do well]
    - Opportunity for you: [gap you can fill]
 
-Example for cybersecurity brand like @amaan_sec:
-- **HackerOne**: @hackerone | https://hackerone.com
-- **Bugcrowd**: @bugcrowd | https://bugcrowd.com
-- **Cobalt**: @cobalt_io | https://cobalt.io
+Example for cybersecurity brand on Twitter/X:
+- **HackerOne**: @Hacker0x01 | https://twitter.com/Hacker0x01
+- **Bugcrowd**: @Bugcrowd | https://twitter.com/Bugcrowd
+- **Cobalt**: @CobaltIO | https://twitter.com/CobaltIO
 
-Always provide actionable competitor intelligence with real handles and URLs.
+Always provide actionable competitor intelligence with real {platform} handles and URLs.
 Always be proactive - suggest what they should do next based on their questions.
 """
 
         return base_prompt
 
-    def chat(self, user_message: str) -> Dict:
+    def _detect_posting_intent(self, message: str) -> bool:
+        """Detect if user wants to post content to Twitter"""
+        posting_keywords = [
+            'post this', 'upload this', 'tweet this', 'publish this',
+            'post it', 'upload it', 'tweet it', 'share this',
+            'post on', 'upload on', 'tweet on', 'post to',
+            'post the', 'upload the', 'automate', 'schedule'
+        ]
+        message_lower = message.lower()
+        return any(keyword in message_lower for keyword in posting_keywords)
+
+    def _generate_caption(self, user_message: str, brand_context: str = "") -> str:
+        """Generate caption for Twitter post using AI"""
+        try:
+            prompt = f"""Generate a compelling Twitter caption (max 200 characters) for this content.
+
+Brand: {self.brand_handle}
+{brand_context}
+
+User request: {user_message}
+
+Requirements:
+- Professional and engaging
+- Maximum 200 characters (leave room for hashtags)
+- Relevant to the content
+- Call-to-action if appropriate
+
+Respond with ONLY the caption text, nothing else."""
+
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.8,
+                max_tokens=100
+            )
+
+            caption = response.choices[0].message.content.strip().strip('"').strip("'")
+            return caption[:200]  # Enforce limit
+
+        except Exception as e:
+            # Fallback caption
+            return "Check out this content!"
+
+    def _generate_hashtags(self, user_message: str = "", brand_niche: str = "cybersecurity") -> str:
+        """Generate relevant hashtags"""
+        try:
+            prompt = f"""Generate 3-5 relevant Twitter hashtags for a {brand_niche} brand.
+
+Context: {user_message if user_message else 'General post'}
+
+Requirements:
+- Popular and relevant hashtags
+- Mix of broad and specific
+- No more than 5 hashtags
+- Format: #hashtag1 #hashtag2 #hashtag3
+
+Respond with ONLY the hashtags, space-separated."""
+
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=50
+            )
+
+            hashtags = response.choices[0].message.content.strip()
+            return hashtags
+
+        except Exception as e:
+            # Fallback hashtags
+            return "#CyberSecurity #InfoSec #Tech"
+
+    def chat(self, user_message: str, uploaded_image_url: str = None) -> Dict:
         """
         Main chat interface - handles all user queries.
 
         Args:
             user_message: User's question or command
+            uploaded_image_url: URL of uploaded image (if any)
 
         Returns:
             Dict with response, action_type, and metadata
@@ -153,6 +248,44 @@ Always be proactive - suggest what they should do next based on their questions.
             "content": user_message,
             "timestamp": datetime.now().isoformat()
         })
+
+        # CHECK FOR POSTING INTENT FIRST!
+        if uploaded_image_url and self._detect_posting_intent(user_message):
+            # User wants to post! Generate caption and hashtags
+            print(f"\nPosting intent detected!")
+            print(f"   Message: {user_message[:50]}...")
+            print(f"   Image: {uploaded_image_url}")
+
+            # Generate caption and hashtags
+            caption = self._generate_caption(user_message)
+            hashtags = self._generate_hashtags(user_message)
+
+            # Combine
+            full_text = f"{caption}\n\n{hashtags}"
+
+            # Ensure it's under 280 characters
+            if len(full_text) > 280:
+                full_text = caption[:250] + "\n\n" + hashtags
+
+            response_message = f"I'll post this to your Twitter right now!\n\nCaption: {caption}\n\nHashtags: {hashtags}\n\nPosting..."
+
+            # Add to history
+            self.conversation_history.append({
+                "role": "assistant",
+                "content": response_message,
+                "timestamp": datetime.now().isoformat()
+            })
+
+            return {
+                "response": response_message,
+                "action_type": "post_to_twitter",
+                "needs_posting": True,
+                "post_data": {
+                    "text": full_text,
+                    "image_url": uploaded_image_url
+                },
+                "timestamp": datetime.now().isoformat()
+            }
 
         # Check for special commands
         action_type = self._detect_action_type(user_message)

@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     video_fps: int = 30
     image_max_size: int = 2048
 
+    # Twitter/X OAuth Configuration
+    twitter_api_key: Optional[str] = None
+    twitter_api_secret: Optional[str] = None
+    twitter_client_id: Optional[str] = None
+    twitter_client_secret: Optional[str] = None
+    twitter_redirect_uri: str = "http://localhost:8000/api/auth/twitter/callback"
+
     class Config:
         env_file = ".env"
         case_sensitive = False
