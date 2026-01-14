@@ -1385,7 +1385,11 @@
 
                 const data = await response.json();
 
-                if (data.response) {
+                if (!response.ok) {
+                    // Handle HTTP errors (4xx, 5xx)
+                    const errorMsg = data.detail || 'Sorry, I encountered an error. Please try again.';
+                    addMessage('assistant', errorMsg);
+                } else if (data.response) {
                     addMessage('assistant', data.response, data.action_type, data.needs_report, true, data.image_url);
                     saveChatSession();
                 } else {

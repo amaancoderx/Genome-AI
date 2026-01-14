@@ -447,17 +447,19 @@ Respond with ONLY the hashtags, space-separated."""
 
         except Exception as e:
             # Provide more specific error messages
-            error_str = str(e)
-            if "billing" in error_str.lower() or "quota" in error_str.lower():
+            error_str = str(e).lower()
+            if "billing" in error_str or "quota" in error_str or "insufficient_quota" in error_str:
                 error_message = "Image generation quota exceeded. Please check your OpenAI billing settings."
-            elif "api_key" in error_str.lower() or "authentication" in error_str.lower():
+            elif "api_key" in error_str or "authentication" in error_str or "invalid_api_key" in error_str:
                 error_message = "API authentication failed. Please verify your OpenAI API key."
-            elif "content_policy" in error_str.lower() or "safety" in error_str.lower():
-                error_message = "The image request was rejected due to content policy. Please try a different description."
-            elif "timeout" in error_str.lower():
+            elif "content_policy" in error_str or "safety" in error_str or "rejected" in error_str:
+                error_message = "I can't generate images of real people (like politicians or celebrities) due to content policy. Please try describing a fictional character, a scene, or an abstract concept instead!"
+            elif "timeout" in error_str:
                 error_message = "Image generation timed out. Please try again."
+            elif "rate_limit" in error_str:
+                error_message = "Too many requests. Please wait a moment and try again."
             else:
-                error_message = f"Image generation failed: {error_str}"
+                error_message = f"Image generation failed: {str(e)}"
 
             return {
                 "error": error_message,
