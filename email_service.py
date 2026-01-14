@@ -195,12 +195,12 @@ class EmailService:
                 <p>If you have any questions or need additional edits, feel free to upload again or contact our support team.</p>
 
                 <div style="text-align: center;">
-                    <p style="font-size: 18px; color: #667eea;"><strong>Thank you for using Pixaro AI!</strong></p>
+                    <p style="font-size: 18px; color: #667eea;"><strong>Thank you for using Genome AI!</strong></p>
                 </div>
             </div>
             <div class="footer">
-                <p>This is an automated message from Pixaro AI Agent</p>
-                <p>&copy; 2025 Pixaro. All rights reserved.</p>
+                <p>This is an automated message from Genome AI</p>
+                <p>&copy; 2025 Genome AI. All rights reserved.</p>
             </div>
         </body>
         </html>
@@ -268,7 +268,7 @@ class EmailService:
 
                 <p>We apologize for the inconvenience.</p>
 
-                <p><strong>Best regards,</strong><br>Pixaro AI Team</p>
+                <p><strong>Best regards,</strong><br>Genome AI Team</p>
             </div>
         </body>
         </html>
@@ -428,12 +428,12 @@ class EmailService:
                 <p>Need more content? Just send another prompt!</p>
 
                 <div style="text-align: center; margin-top: 20px;">
-                    <p style="font-size: 18px; color: #667eea;"><strong>Thank you for using Pixaro AI!</strong></p>
+                    <p style="font-size: 18px; color: #667eea;"><strong>Thank you for using Genome AI!</strong></p>
                 </div>
             </div>
             <div class="footer">
-                <p>This is an automated message from Pixaro AI Content Generator</p>
-                <p>&copy; 2025 Pixaro. All rights reserved.</p>
+                <p>This is an automated message from Genome AI</p>
+                <p>&copy; 2025 Genome AI. All rights reserved.</p>
                 <p style="margin-top: 10px; color: #999;">
                     Image: DALL-E 3 | Video: Veo 3 | Caption: GPT-4
                 </p>
@@ -640,13 +640,13 @@ class EmailService:
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <p style="font-size: 20px; color: #667eea;"><strong>Thank you for using Pixaro Market Genome!</strong></p>
+                    <p style="font-size: 20px; color: #667eea;"><strong>Thank you for using Genome AI!</strong></p>
                     <p style="color: #666;">Powered by AI • Built from Real Data • Designed for Growth</p>
                 </div>
             </div>
             <div class="footer">
-                <p>This is an automated message from Pixaro Market Genome AI</p>
-                <p>&copy; 2025 Pixaro. All rights reserved.</p>
+                <p>This is an automated message from Genome AI</p>
+                <p>&copy; 2025 Genome AI. All rights reserved.</p>
                 <p style="margin-top: 10px; color: #999;">
                     🧬 Marketing Genome Technology | AI-Powered Brand Intelligence
                 </p>

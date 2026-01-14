@@ -10,6 +10,8 @@ from typing import Dict, List
 from openai import OpenAI
 from config import settings
 import json
+import importlib
+import sys
 
 
 class MarketGenomeEngine:
@@ -255,7 +257,11 @@ Return as JSON with timeline and specific actions."""
             temperature=0.7
         )
 
-        growth_roadmap = json.loads(response.choices[0].message.content)
+        raw_content = response.choices[0].message.content
+        print(f"[DEBUG] Growth Roadmap Raw Response: {raw_content[:500]}")
+
+        growth_roadmap = json.loads(raw_content)
+        print(f"[DEBUG] Growth Roadmap Parsed Keys: {list(growth_roadmap.keys())}")
 
         print(f"   SUCCESS - Growth roadmap created")
 
@@ -300,7 +306,11 @@ Return as JSON with detailed content pillars."""
             temperature=0.8
         )
 
-        content_strategy = json.loads(response.choices[0].message.content)
+        raw_content = response.choices[0].message.content
+        print(f"[DEBUG] Content Strategy Raw Response: {raw_content[:500]}")
+
+        content_strategy = json.loads(raw_content)
+        print(f"[DEBUG] Content Strategy Parsed Keys: {list(content_strategy.keys())}")
 
         print(f"   SUCCESS - Content strategy created")
 
@@ -324,6 +334,10 @@ Return as JSON with detailed content pillars."""
 
         print(f"   Generating PREMIUM PDF report with visuals...")
 
+        # Force reload the report generator module to pick up any code changes
+        import report_generator_v2
+        if 'report_generator_v2' in sys.modules:
+            importlib.reload(report_generator_v2)
         from report_generator_v2 import PixaroReportGenerator
 
         report_gen = PixaroReportGenerator()

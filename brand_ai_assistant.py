@@ -5,9 +5,12 @@ Provides real-time brand analysis, content generation, and strategic insights
 
 import os
 import json
+import base64
 from typing import Dict, List, Optional
 from datetime import datetime
 from openai import OpenAI
+from google import genai
+from google.genai import types
 from config import settings
 
 class PixaroBrandAssistant:
@@ -405,7 +408,7 @@ Respond with ONLY the hashtags, space-separated."""
 
     def generate_image(self, prompt: str, size: str = "1024x1024") -> Dict:
         """
-        Generate an image using DALL-E based on the user's description.
+        Generate an image using DALL-E 3 based on the user's description.
 
         Args:
             prompt: Description of the image to generate
@@ -446,6 +449,9 @@ Respond with ONLY the hashtags, space-separated."""
             }
 
         except Exception as e:
+            # Log the actual error for debugging
+            print(f"[IMAGE ERROR] {str(e)}")
+
             # Provide more specific error messages
             error_str = str(e).lower()
             if "billing" in error_str or "quota" in error_str or "insufficient_quota" in error_str:

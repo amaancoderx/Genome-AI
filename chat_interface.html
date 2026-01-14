@@ -1241,11 +1241,13 @@
             // Clear messages container completely
             messagesContainer.innerHTML = '';
 
-            // Remove welcome screen if it exists
-            const existingWelcome = document.getElementById('welcomeScreen');
-            if (existingWelcome && existingWelcome.parentNode) {
-                existingWelcome.parentNode.removeChild(existingWelcome);
-            }
+            // Remove ALL welcome screens if they exist (including any clones)
+            const allWelcomeScreens = document.querySelectorAll('.welcome-screen');
+            allWelcomeScreens.forEach(ws => {
+                if (ws && ws.parentNode) {
+                    ws.parentNode.removeChild(ws);
+                }
+            });
 
             // Re-add typing indicator first
             const newTypingIndicator = document.createElement('div');
@@ -1299,6 +1301,12 @@
             const connectBtn = document.getElementById('connectBtn');
             connectBtn.textContent = 'Connecting...';
             connectBtn.disabled = true;
+
+            // Set loading text for brand connection
+            const loadingText = document.querySelector('.loading-text');
+            const loadingSubtext = document.querySelector('.loading-subtext');
+            loadingText.textContent = 'Connecting to brand...';
+            loadingSubtext.textContent = 'Analyzing your brand profile';
             loadingOverlay.classList.add('active');
 
             try {
@@ -1318,10 +1326,13 @@
                     brandHandleDisplay.textContent = brand;
                     connectionPanel.classList.remove('active');
 
-                    // Remove welcome screen from DOM completely
-                    if (welcomeScreen && welcomeScreen.parentNode) {
-                        welcomeScreen.parentNode.removeChild(welcomeScreen);
-                    }
+                    // Remove ALL welcome screens from DOM completely (including any clones)
+                    const allWelcomeScreens = document.querySelectorAll('.welcome-screen');
+                    allWelcomeScreens.forEach(ws => {
+                        if (ws && ws.parentNode) {
+                            ws.parentNode.removeChild(ws);
+                        }
+                    });
 
                     messageInput.disabled = false;
                     sendButton.disabled = false;

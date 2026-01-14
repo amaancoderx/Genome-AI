@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     smtp_user: str
     smtp_password: str
     sender_email: str
-    sender_name: str = "Pixaro AI Agent"
+    sender_name: str = "Genome AI"
 
     # AI Service API Keys
     openai_api_key: Optional[str] = None

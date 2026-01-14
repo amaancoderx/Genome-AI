@@ -40,6 +40,9 @@ chat_sessions: Dict[str, dict] = {}
 
 ensure_directories()
 
+# Mount static files for serving generated images
+app.mount("/outputs", StaticFiles(directory=settings.output_dir), name="outputs")
+
 
 # Pydantic models for chat
 class ChatInitRequest(BaseModel):
