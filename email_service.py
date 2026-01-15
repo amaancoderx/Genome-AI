@@ -76,9 +76,19 @@ class EmailService:
 
                 print(f"✓ Email sent successfully to {to_email} on attempt {attempt + 1}")
                 print(f"  From: {self.sender_email}")
+                print(f"  To: {to_email}")
                 print(f"  Subject: {subject}")
                 if attachments:
                     print(f"  Attachments: {len(attachments)} file(s)")
+                    for att_path in attachments:
+                        if os.path.exists(att_path):
+                            file_size = os.path.getsize(att_path) / (1024 * 1024)  # Convert to MB
+                            print(f"    - {os.path.basename(att_path)} ({file_size:.2f} MB)")
+                print(f"")
+                print(f"⚠️  IMPORTANT: If email doesn't arrive in 2-3 minutes:")
+                print(f"  1. Check SPAM/Junk folder")
+                print(f"  2. Check Gmail's Promotions tab")
+                print(f"  3. Verify email address: {to_email}")
                 return True
 
             except smtplib.SMTPAuthenticationError as e:
