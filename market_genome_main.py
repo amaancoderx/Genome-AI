@@ -38,6 +38,9 @@ genome_jobs: Dict[str, dict] = {}
 # In-memory chat session storage
 chat_sessions: Dict[str, dict] = {}
 
+# In-memory brand data cache (speeds up re-connections)
+brand_cache: Dict[str, dict] = {}
+
 ensure_directories()
 
 # Mount static files for serving generated images
@@ -290,7 +293,7 @@ async def analyze_brand(
         "job_id": job_id,
         "status": "pending",
         "message": "Marketing Genome analysis started. Report will be emailed when complete.",
-        "estimated_time": "3-5 minutes"
+        "estimated_time": "2-3 minutes"  # Updated with faster AI model
     }
 
 
@@ -374,21 +377,25 @@ async def initialize_chat(request: ChatInitRequest):
         # Generate session ID
         session_id = str(uuid.uuid4())
 
-        # Try to load existing brand context if available
-        brand_context = None
+        # Try to load existing brand context from cache first (MUCH FASTER!)
+        brand_key = request.brand_handle.lower()
+        brand_context = brand_cache.get(brand_key)
 
-        # Check if there's a recent genome analysis for this brand
-        for job_id, job in genome_jobs.items():
-            if (job.get('brand_input', '').lower() == request.brand_handle.lower() and
-                job.get('status') == JobStatus.COMPLETED):
-                # Load the brand context from previous analysis
-                # This gives the AI more context about the brand
-                brand_context = {
-                    'brand_dna': job.get('brand_dna', {}),
-                    'audience': job.get('audience', {}),
-                    'competitors': job.get('competitors', {})
-                }
-                break
+        # If not in cache, check genome jobs
+        if not brand_context:
+            for job_id, job in genome_jobs.items():
+                if (job.get('brand_input', '').lower() == brand_key and
+                    job.get('status') == JobStatus.COMPLETED):
+                    # Load the brand context from previous analysis
+                    brand_context = {
+                        'brand_dna': job.get('brand_dna', {}),
+                        'audience': job.get('audience', {}),
+                        'competitors': job.get('competitors', {})
+                    }
+                    # Cache it for next time
+                    brand_cache[brand_key] = brand_context
+                    print(f"   Cached brand data for {request.brand_handle}")
+                    break
 
         # Initialize AI assistant
         assistant = PixaroBrandAssistant(
@@ -530,8 +537,8 @@ async def generate_chat_report(request: ChatReportRequest, background_tasks: Bac
         return {
             "success": True,
             "job_id": job_id,
-            "message": f"Report is being generated for {brand_handle} and will be sent to {request.email}",
-            "estimated_time": "3-5 minutes"
+            "message": f"Report generation started! Check your email at {request.email} in 2-3 minutes.",
+            "estimated_time": "2-3 minutes"  # Updated from 3-5 with faster AI model
         }
 
     except HTTPException:

@@ -26,9 +26,13 @@ class MarketGenomeEngine:
     """
 
     def __init__(self):
-        self.openai_client = OpenAI(api_key=settings.openai_api_key) if settings.openai_api_key else None
+        self.openai_client = OpenAI(
+            api_key=settings.openai_api_key,
+            timeout=45.0,  # 45 second timeout for analysis tasks
+            max_retries=2   # Retry only 2 times
+        ) if settings.openai_api_key else None
 
-        if not self.openai_client: 
+        if not self.openai_client:
             raise ValueError("OpenAI API key required for Market Genome analysis")
 
     def collect_brand_data(self, brand_input: str, input_type: str = "auto") -> Dict:
@@ -151,7 +155,7 @@ Return as JSON with these exact keys:
 }}"""
 
         response = self.openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4o",  # Much faster than turbo-preview
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -202,7 +206,7 @@ Return as JSON:
 }}"""
 
         response = self.openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4o",  # Much faster than turbo-preview
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -248,7 +252,7 @@ Provide:
 Return as JSON with timeline and specific actions."""
 
         response = self.openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4o",  # Much faster than turbo-preview
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -297,7 +301,7 @@ Provide:
 Return as JSON with detailed content pillars."""
 
         response = self.openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4o",  # Much faster than turbo-preview
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}

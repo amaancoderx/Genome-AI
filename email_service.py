@@ -56,8 +56,8 @@ class EmailService:
                     if os.path.exists(file_path):
                         self._attach_file(msg, file_path)
 
-            # Connect to SMTP server and send
-            with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
+            # Connect to SMTP server and send (with timeout for faster failures)
+            with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=15) as server:
                 server.starttls()
                 server.login(self.smtp_user, self.smtp_password)
                 server.send_message(msg)

@@ -36,7 +36,11 @@ class PixaroBrandAssistant:
         """
         self.brand_handle = brand_handle
         self.brand_context = brand_context or {}
-        self.openai_client = OpenAI(api_key=settings.openai_api_key)
+        self.openai_client = OpenAI(
+            api_key=settings.openai_api_key,
+            timeout=30.0,  # Add 30 second timeout
+            max_retries=2   # Retry only 2 times to fail faster
+        )
         self.conversation_history = []
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -192,10 +196,10 @@ Requirements:
 Respond with ONLY the caption text, nothing else."""
 
             response = self.openai_client.chat.completions.create(
-                model="gpt-4-turbo-preview",
+                model="gpt-4o",  # Much faster than turbo-preview
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.8,
-                max_tokens=100
+                max_tokens=50  # Reduced for faster response
             )
 
             caption = response.choices[0].message.content.strip().strip('"').strip("'")
@@ -221,7 +225,7 @@ Requirements:
 Respond with ONLY the hashtags, space-separated."""
 
             response = self.openai_client.chat.completions.create(
-                model="gpt-4-turbo-preview",
+                model="gpt-4o",  # Much faster
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=50
@@ -342,13 +346,13 @@ Respond with ONLY the hashtags, space-separated."""
               for msg in self.conversation_history]
         ]
 
-        # Get AI response
+        # Get AI response - Using GPT-4o (much faster than turbo-preview!)
         try:
             response = self.openai_client.chat.completions.create(
-                model="gpt-4-turbo-preview",
+                model="gpt-4o",  # Changed from gpt-4-turbo-preview for 2-3x speed boost
                 messages=messages,
                 temperature=0.7,
-                max_tokens=1500
+                max_tokens=1000  # Reduced from 1500 for faster responses
             )
 
             assistant_response = response.choices[0].message.content
