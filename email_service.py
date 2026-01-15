@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List, Optional
 from config import settings
 import os
+import time
 
 
 class EmailService:
@@ -25,49 +26,72 @@ class EmailService:
         to_email: str,
         subject: str,
         body_html: str,
-        attachments: Optional[List[str]] = None
+        attachments: Optional[List[str]] = None,
+        max_retries: int = 3
     ) -> bool:
         """
-        Send email with optional attachments
+        Send email with optional attachments (with retry logic)
 
         Args:
             to_email: Recipient email address
             subject: Email subject
             body_html: HTML body content
             attachments: List of file paths to attach
+            max_retries: Maximum number of retry attempts (default: 3)
 
         Returns:
             bool: True if email sent successfully
         """
-        try:
-            # Create message
-            msg = MIMEMultipart('alternative')
-            msg['From'] = f"{self.sender_name} <{self.sender_email}>"
-            msg['To'] = to_email
-            msg['Subject'] = subject
+        last_error = None
 
-            # Attach HTML body
-            html_part = MIMEText(body_html, 'html')
-            msg.attach(html_part)
+        for attempt in range(max_retries):
+            try:
+                print(f"Sending email to {to_email} (attempt {attempt + 1}/{max_retries})...")
 
-            # Attach files if provided
-            if attachments:
-                for file_path in attachments:
-                    if os.path.exists(file_path):
-                        self._attach_file(msg, file_path)
+                # Create message
+                msg = MIMEMultipart('alternative')
+                msg['From'] = f"{self.sender_name} <{self.sender_email}>"
+                msg['To'] = to_email
+                msg['Subject'] = subject
 
-            # Connect to SMTP server and send (with timeout for faster failures)
-            with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=15) as server:
-                server.starttls()
-                server.login(self.smtp_user, self.smtp_password)
-                server.send_message(msg)
+                # Attach HTML body
+                html_part = MIMEText(body_html, 'html')
+                msg.attach(html_part)
 
-            print(f"Email sent successfully to {to_email}")
-            return True
+                # Attach files if provided
+                if attachments:
+                    for file_path in attachments:
+                        if os.path.exists(file_path):
+                            self._attach_file(msg, file_path)
 
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-            return False
+                # Connect to SMTP server and send (with timeout for faster failures)
+                with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=20) as server:
+                    server.set_debuglevel(0)  # Disable debug output
+                    server.starttls()
+                    server.login(self.smtp_user, self.smtp_password)
+                    server.send_message(msg)
+
+                print(f"✓ Email sent successfully to {to_email} on attempt {attempt + 1}")
+                return True
+
+            except smtplib.SMTPAuthenticationError as e:
+                # Don't retry on auth errors
+                print(f"✗ SMTP Authentication failed: {e}")
+                return False
+
+            except Exception as e:
+                last_error = e
+                print(f"✗ Email send failed (attempt {attempt + 1}/{max_retries}): {e}")
+
+                # Wait before retrying (exponential backoff)
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt  # 1s, 2s, 4s
+                    print(f"  Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+
+        # All retries failed
+        print(f"✗ Failed to send email after {max_retries} attempts. Last error: {last_error}")
+        return False
 
     def _attach_file(self, msg: MIMEMultipart, file_path: str):
         """Attach a file to the email message"""
