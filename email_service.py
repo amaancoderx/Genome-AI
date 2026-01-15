@@ -68,10 +68,17 @@ class EmailService:
                 with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=20) as server:
                     server.set_debuglevel(0)  # Disable debug output
                     server.starttls()
+                    print(f"  TLS connection established")
                     server.login(self.smtp_user, self.smtp_password)
-                    server.send_message(msg)
+                    print(f"  SMTP login successful")
+                    result = server.send_message(msg)
+                    print(f"  Message sent, server response: {result if result else 'OK'}")
 
                 print(f"✓ Email sent successfully to {to_email} on attempt {attempt + 1}")
+                print(f"  From: {self.sender_email}")
+                print(f"  Subject: {subject}")
+                if attachments:
+                    print(f"  Attachments: {len(attachments)} file(s)")
                 return True
 
             except smtplib.SMTPAuthenticationError as e:
@@ -81,7 +88,10 @@ class EmailService:
 
             except Exception as e:
                 last_error = e
-                print(f"✗ Email send failed (attempt {attempt + 1}/{max_retries}): {e}")
+                error_type = type(e).__name__
+                print(f"✗ Email send failed (attempt {attempt + 1}/{max_retries})")
+                print(f"  Error type: {error_type}")
+                print(f"  Error details: {str(e)}")
 
                 # Wait before retrying (exponential backoff)
                 if attempt < max_retries - 1:

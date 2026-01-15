@@ -120,7 +120,7 @@ async def health_check():
     return {"status": "healthy"}
 
 
-async def analyze_brand_genome(
+def analyze_brand_genome(
     job_id: str,
     brand_input: str,
     input_type: str,
@@ -128,6 +128,10 @@ async def analyze_brand_genome(
 ):
     """
     Background task: Analyze brand and generate Marketing Genome Report
+
+    NOTE: This must be a sync function (not async) to work properly with
+    FastAPI BackgroundTasks. Async background tasks can cause the response
+    to hang waiting for completion.
 
     Steps:
     1. Scrape brand data (website, social, reviews)
@@ -521,7 +525,11 @@ async def generate_chat_report(request: ChatReportRequest, background_tasks: Bac
             'chat_session_id': request.session_id
         }
 
-        # Start background report generation
+        print(f"\nSUCCESS - Chat report started: {job_id}")
+        print(f"   Brand: {brand_handle}")
+        print(f"   Email: {request.email}")
+
+        # Start background report generation (non-blocking)
         background_tasks.add_task(
             analyze_brand_genome,
             job_id,
@@ -530,15 +538,14 @@ async def generate_chat_report(request: ChatReportRequest, background_tasks: Bac
             request.email
         )
 
-        print(f"\nSUCCESS - Chat report started: {job_id}")
-        print(f"   Brand: {brand_handle}")
-        print(f"   Email: {request.email}")
+        print(f"   Background task queued successfully")
 
+        # Return immediately without waiting
         return {
             "success": True,
             "job_id": job_id,
             "message": f"Report generation started! Check your email at {request.email} in 2-3 minutes.",
-            "estimated_time": "2-3 minutes"  # Updated from 3-5 with faster AI model
+            "estimated_time": "2-3 minutes"
         }
 
     except HTTPException:
