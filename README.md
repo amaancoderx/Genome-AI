@@ -1,6 +1,6 @@
-# Pixaro - AI-Powered Marketing Intelligence Platform
+# Genome - AI-Powered Marketing Intelligence Platform
 
-Pixaro is an intelligent marketing platform that provides AI-powered brand analysis, content generation, and strategic marketing insights.
+Genome is an intelligent marketing platform that provides AI-powered brand analysis, content generation, and strategic marketing insights.
 
 ## 🚀 Features
 
